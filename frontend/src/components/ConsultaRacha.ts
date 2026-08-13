@@ -1,78 +1,75 @@
-import { ApiError, obtenerRacha, UsuarioRacha } from '../services/api';
+import { ApiError, obtenerRachas, UsuarioRacha } from '../services/api';
 
 interface ConsultaRachaOptions {
   onVolver: () => void;
+}
+
+function escapar(texto: string): string {
+  const elemento = document.createElement('span');
+  elemento.textContent = texto;
+  return elemento.innerHTML;
 }
 
 function formatearFecha(fechaISO: string | null): string {
   if (!fechaISO) return 'Sin registro';
   const [anio, mes, dia] = fechaISO.split('-').map(Number);
   return new Date(Date.UTC(anio, mes - 1, dia)).toLocaleDateString('es-GT', {
-    day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC',
+    day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC',
   });
 }
 
-function crearResultado(datos: UsuarioRacha): string {
+function crearFila(datos: UsuarioRacha, posicion: number): string {
   return `
-    <section class="resultado-racha" aria-live="polite">
-      <h2>${datos.nombre_usuario}</h2>
-      <div class="tarjetas">
-        <div class="tarjeta tarjeta-actual">
-          <span class="icono">🔥</span>
-          <span class="etiqueta">Racha actual</span>
-          <span class="valor">${datos.racha_actual} día${datos.racha_actual === 1 ? '' : 's'}</span>
-        </div>
-        <div class="tarjeta tarjeta-maxima">
-          <span class="icono">🏆</span>
-          <span class="etiqueta">Mejor racha</span>
-          <span class="valor">${datos.racha_maxima} día${datos.racha_maxima === 1 ? '' : 's'}</span>
-        </div>
+    <article class="fila-usuario">
+      <span class="posicion">${posicion}</span>
+      <div class="datos-usuario">
+        <strong>${escapar(datos.nombre_usuario)}</strong>
+        <small>Último inicio: ${formatearFecha(datos.ultimo_login)}</small>
       </div>
-      <p class="ultimo-login">Último inicio: ${formatearFecha(datos.ultimo_login)}</p>
-    </section>`;
+      <div class="dato-racha"><span>🔥</span><strong>${datos.racha_actual}</strong><small>Actual</small></div>
+      <div class="dato-racha"><span>🏆</span><strong>${datos.racha_maxima}</strong><small>Máxima</small></div>
+    </article>`;
 }
 
-export function renderConsultaRacha(contenedor: HTMLElement, opciones: ConsultaRachaOptions): void {
+export async function renderConsultaRacha(
+  contenedor: HTMLElement,
+  opciones: ConsultaRachaOptions,
+): Promise<void> {
   contenedor.innerHTML = `
-    <div class="tarjeta-login consulta-racha">
-      <button type="button" class="boton-volver" id="btn-volver">← Volver al inicio</button>
-      <h1>Consultar racha</h1>
-      <p class="descripcion-consulta">Consulta tu progreso sin iniciar sesión.</p>
-      <form id="form-consulta">
-        <label for="id-usuario">ID de usuario</label>
-        <input type="number" id="id-usuario" name="idUsuario" min="1" step="1"
-          inputmode="numeric" placeholder="Ejemplo: 1" required />
-        <button type="submit" id="btn-consultar">Ver mi racha</button>
-        <p class="mensaje-error" id="mensaje-error" role="alert"></p>
-      </form>
-      <div id="resultado"></div>
+    <div class="panel-rachas">
+      <div class="cabecera-rachas">
+        <button type="button" class="boton-volver" id="btn-volver">← Volver</button>
+        <button type="button" class="boton-actualizar" id="btn-actualizar">Actualizar</button>
+      </div>
+      <h1>Rachas de usuarios</h1>
+      <p class="descripcion-consulta">Clasificación por racha actual</p>
+      <p class="estado-lista" id="estado-lista">Cargando usuarios...</p>
+      <div class="lista-usuarios" id="lista-usuarios"></div>
     </div>`;
-
-  const form = contenedor.querySelector<HTMLFormElement>('#form-consulta')!;
-  const boton = contenedor.querySelector<HTMLButtonElement>('#btn-consultar')!;
-  const mensajeError = contenedor.querySelector<HTMLParagraphElement>('#mensaje-error')!;
-  const resultado = contenedor.querySelector<HTMLDivElement>('#resultado')!;
 
   contenedor.querySelector<HTMLButtonElement>('#btn-volver')!
     .addEventListener('click', opciones.onVolver);
+  const actualizar = contenedor.querySelector<HTMLButtonElement>('#btn-actualizar')!;
 
-  form.addEventListener('submit', async (evento) => {
-    evento.preventDefault();
-    mensajeError.textContent = '';
-    resultado.innerHTML = '';
-    const idUsuario = Number((form.elements.namedItem('idUsuario') as HTMLInputElement).value);
-    boton.disabled = true;
-    boton.textContent = 'Consultando...';
-
+  const cargar = async (): Promise<void> => {
+    const estado = contenedor.querySelector<HTMLParagraphElement>('#estado-lista')!;
+    const lista = contenedor.querySelector<HTMLDivElement>('#lista-usuarios')!;
+    actualizar.disabled = true;
+    estado.textContent = 'Cargando usuarios...';
+    lista.innerHTML = '';
     try {
-      resultado.innerHTML = crearResultado(await obtenerRacha(idUsuario));
+      const usuarios = await obtenerRachas();
+      estado.textContent = usuarios.length ? '' : 'Todavía no hay usuarios para mostrar.';
+      lista.innerHTML = usuarios.map((usuario, indice) => crearFila(usuario, indice + 1)).join('');
     } catch (error) {
-      mensajeError.textContent = error instanceof ApiError
+      estado.textContent = error instanceof ApiError
         ? error.message
         : 'No se pudo conectar con el servidor';
     } finally {
-      boton.disabled = false;
-      boton.textContent = 'Ver mi racha';
+      actualizar.disabled = false;
     }
-  });
+  };
+
+  actualizar.addEventListener('click', cargar);
+  await cargar();
 }

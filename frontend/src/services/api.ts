@@ -44,3 +44,8 @@ export async function obtenerRacha(idUsuario: number): Promise<UsuarioRacha> {
   const res = await fetch(`${API_URL}/usuarios/${idUsuario}/racha`);
   return manejarRespuesta<UsuarioRacha>(res);
 }
+
+export async function obtenerRachas(): Promise<UsuarioRacha[]> {
+  const res = await fetch(`${API_URL}/usuarios/rachas`);
+  return manejarRespuesta<UsuarioRacha[]>(res);
+}

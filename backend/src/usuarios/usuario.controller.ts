@@ -9,6 +9,13 @@ export class UsuarioController {
     private readonly rachaService: RachaService,
   ) {}
 
+  /** GET /usuarios/rachas - listado público sin contraseñas. */
+  @Get('rachas')
+  async listarRachas() {
+    const usuarios = await this.usuarioService.listarActivos();
+    return usuarios.map((usuario) => this.rachaService.mapearEstadoRacha(usuario));
+  }
+
   /**
    * GET /usuarios/:id/racha
    * Devuelve el estado actual de la racha de un usuario, usado por

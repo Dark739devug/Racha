@@ -30,6 +30,13 @@ export class UsuarioService {
     return usuario;
   }
 
+  async listarActivos(): Promise<Usuario[]> {
+    return this.usuarioRepository.find({
+      where: { activo: true },
+      order: { rachaActual: 'DESC', rachaMaxima: 'DESC', nombreUsuario: 'ASC' },
+    });
+  }
+
   async crear(dto: CreateUsuarioDto): Promise<Usuario> {
     const existente = await this.buscarPorUsuario(dto.usuario);
     if (existente) {
