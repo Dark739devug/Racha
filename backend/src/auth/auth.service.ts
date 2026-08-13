@@ -56,7 +56,8 @@ export class AuthService {
           .insert()
           .values({
             idUsuario: guardado.idUsuario,
-            fechaLogin: guardado.ultimoLogin,
+            // calcularNuevaRacha siempre establece ultimoLogin antes del save.
+            fechaLogin: guardado.ultimoLogin!,
           })
           .orIgnore() // evita duplicados el mismo día (UNIQUE id_usuario+fecha_login)
           .execute();
