@@ -71,6 +71,62 @@ body {
   cursor: not-allowed;
 }
 
+.tarjeta-login .boton-secundario,
+.tarjeta-login .boton-volver {
+  width: 100%;
+  margin-top: 0;
+  background: transparent;
+  border: 1px solid #475569;
+  color: #e2e8f0;
+}
+
+.tarjeta-login .boton-volver {
+  width: auto;
+  padding: 0;
+  border: 0;
+  color: #94a3b8;
+  font-size: 0.9rem;
+}
+
+.separador {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0.25rem 0 1rem;
+  color: #64748b;
+  font-size: 0.8rem;
+}
+
+.separador::before,
+.separador::after {
+  content: '';
+  height: 1px;
+  flex: 1;
+  background: #334155;
+}
+
+.descripcion-consulta {
+  margin: -0.5rem 0 1rem;
+  text-align: center;
+  color: #94a3b8;
+}
+
+.resultado-racha {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #334155;
+}
+
+.resultado-racha h2 {
+  margin: 0 0 1rem;
+  text-align: center;
+  font-size: 1.2rem;
+}
+
+.consulta-racha {
+  padding-top: 1.5rem;
+}
+
 .mensaje-error {
   color: #f87171;
   min-height: 1.2rem;

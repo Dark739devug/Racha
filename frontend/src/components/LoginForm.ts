@@ -2,6 +2,7 @@ import { login, ApiError, UsuarioRacha } from '../services/api';
 
 interface LoginFormOptions {
   onLoginExitoso: (usuario: UsuarioRacha) => void;
+  onConsultarRacha: () => void;
 }
 
 export function renderLoginForm(contenedor: HTMLElement, opciones: LoginFormOptions): void {
@@ -18,12 +19,19 @@ export function renderLoginForm(contenedor: HTMLElement, opciones: LoginFormOpti
         <button type="submit" id="btn-login">Iniciar sesión</button>
         <p class="mensaje-error" id="mensaje-error"></p>
       </form>
+      <div class="separador"><span>o</span></div>
+      <button type="button" class="boton-secundario" id="btn-consulta">
+        Consultar racha sin iniciar sesión
+      </button>
     </div>
   `;
 
   const form = contenedor.querySelector<HTMLFormElement>('#form-login')!;
   const mensajeError = contenedor.querySelector<HTMLParagraphElement>('#mensaje-error')!;
   const boton = contenedor.querySelector<HTMLButtonElement>('#btn-login')!;
+
+  contenedor.querySelector<HTMLButtonElement>('#btn-consulta')!
+    .addEventListener('click', opciones.onConsultarRacha);
 
   form.addEventListener('submit', async (evento) => {
     evento.preventDefault();

@@ -15,22 +15,7 @@ export class RachaService {
     private readonly historialRepository: Repository<HistorialLogin>,
   ) {}
 
-  /**
-   * Aplica la lógica de racha sobre la entidad `usuario` EN MEMORIA
-   * (no la guarda todavía; eso lo hace el llamador dentro de una
-   * transacción junto con el registro del historial).
-   *
-   * Lógica (fechas calendario, sin horas):
-   *
-   *  SI ultimo_login == null            -> racha_actual = 1
-   *  SINO SI ultimo_login == hoy        -> no modificar racha
-   *  SINO SI ultimo_login == ayer       -> racha_actual += 1
-   *  SINO                               -> racha_actual = 1
-   *
-   *  SI racha_actual > racha_maxima     -> racha_maxima = racha_actual
-   *
-   *  ultimo_login = hoy
-   */
+ 
   calcularNuevaRacha(usuario: Usuario): { usuario: Usuario; yaHabiaLoginHoy: boolean } {
     const hoy = FechaUtil.hoy();
     const ayer = FechaUtil.diaAnterior(hoy);

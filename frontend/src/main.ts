@@ -1,6 +1,7 @@
 import './style.css';
 import { renderLoginForm } from './components/LoginForm';
 import { renderDashboard } from './components/Dashboard';
+import { renderConsultaRacha } from './components/ConsultaRacha';
 import { obtenerRacha, UsuarioRacha } from './services/api';
 
 const app = document.querySelector<HTMLDivElement>('#app')!;
@@ -19,6 +20,7 @@ function mostrarDashboard(usuario: UsuarioRacha): void {
 function mostrarLogin(): void {
   renderLoginForm(app, {
     onLoginExitoso: (usuario) => mostrarDashboard(usuario),
+    onConsultarRacha: () => renderConsultaRacha(app, { onVolver: mostrarLogin }),
   });
 }
 
